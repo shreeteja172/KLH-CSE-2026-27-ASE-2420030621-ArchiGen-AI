@@ -32,6 +32,7 @@ Mermaid class diagram and saves it to your workspace.
 - [Project structure](#project-structure)
 - [Data model](#data-model)
 - [Security model](#security-model)
+- [Testing](#testing)
 - [Deploying](#deploying)
 - [Version notes](#version-notes)
 - [Roadmap](#roadmap)
@@ -60,6 +61,8 @@ structured, schema-validated class model you can read, critique, and iterate on.
 | **Saved to your workspace** | Every diagram is persisted to Neon Postgres against your account, so you can revisit and compare iterations. |
 | **JSON you can build on** | The raw model sits next to the diagram, one click from your clipboard, ready to feed into codegen or your own tooling. |
 | **Auth that actually gates** | Clerk protects the dashboard at the proxy layer *and* inside every server action and route handler. |
+| **Durable rate limiting** | 10 generations per hour and 40 per day per user, tracked in Postgres so the limit survives cold starts and holds across serverless instances. |
+| **Graceful failure** | Error boundaries at the app, dashboard and root-layout level, plus skeleton loading states for the database-backed routes. |
 
 ---
 
@@ -136,10 +139,10 @@ for the full list:
 cp .env.example .env
 ```
 
-### 3. Push the schema to Neon
+### 3. Apply the schema to Neon
 
 ```bash
-pnpm db:push
+pnpm db:deploy
 ```
 
 ### 4. Run it
@@ -185,7 +188,12 @@ to reach `/dashboard`.
 | `pnpm build` | `prisma generate` then a production build |
 | `pnpm start` | Serve the production build |
 | `pnpm lint` | ESLint across the repo |
-| `pnpm db:push` | Sync `schema.prisma` to Neon (no migration files) |
+| `pnpm test` | Run the Vitest suite once |
+| `pnpm test:watch` | Run tests in watch mode |
+| `pnpm typecheck` | `tsc --noEmit` |
+| `pnpm db:migrate` | Create and apply a migration in development |
+| `pnpm db:deploy` | Apply pending migrations (production / CI) |
+| `pnpm db:push` | Sync `schema.prisma` to Neon without a migration file |
 | `pnpm db:studio` | Open Prisma Studio against your database |
 
 ---
@@ -198,12 +206,17 @@ archigen/
 │   ├── page.tsx                       # Public marketing landing page
 │   ├── layout.tsx                     # Root layout, ClerkProvider, theming
 │   ├── globals.css                    # Tailwind 4 theme tokens + custom utilities
+│   ├── error.tsx                      # App-level error boundary
+│   ├── global-error.tsx               # Root-layout failures (own html/body)
+│   ├── not-found.tsx                  # 404 page
 │   ├── actions/diagrams.ts            # Server Actions: generate, delete
 │   ├── api/generate/route.ts          # Authenticated JSON endpoint
 │   ├── dashboard/
 │   │   ├── layout.tsx                 # App chrome, UserButton
 │   │   ├── page.tsx                   # Generator + saved diagrams
-│   │   └── diagrams/[id]/page.tsx     # Single diagram: render, JSON, delete
+│   │   ├── loading.tsx                # Skeleton while the DB responds
+│   │   ├── error.tsx                  # Dashboard error boundary
+│   │   └── diagrams/[id]/             # Single diagram: render, JSON, delete
 │   └── sign-in, sign-up/              # Clerk catch-all routes
 ├── components/
 │   ├── MermaidDiagram.tsx             # Client-side Mermaid renderer
@@ -213,8 +226,11 @@ archigen/
 │   ├── ai/                            # models.ts, prompt.ts, schema.ts
 │   ├── db.ts                          # Prisma client singleton + Neon adapter
 │   ├── diagrams.ts                    # User-scoped read queries
+│   ├── rate-limit.ts                  # Per-user generation quotas
 │   └── mermaid.ts                     # UML model → Mermaid source
-├── prisma/schema.prisma
+├── prisma/
+│   ├── schema.prisma
+│   └── migrations/                    # Migration history (baselined at 0_init)
 ├── prisma.config.ts                   # Prisma 7 config (datasource URL lives here)
 └── proxy.ts                           # Clerk middleware (Next 16 naming)
 ```
@@ -237,9 +253,23 @@ model Diagram {
 }
 ```
 
+```prisma
+model GenerationEvent {
+  id        String   @id @default(cuid())
+  userId    String
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+```
+
 `uml` stores the full validated object — classes, attributes, methods and relationships
 — so the diagram can be re-rendered or re-exported without another model call. The
 composite index matches the dashboard's "my diagrams, newest first" query.
+
+`GenerationEvent` records one row per generation *attempt*. Keeping it separate from
+`Diagram` means deleting a diagram doesn't refund quota, and a failed model call still
+counts — which is the behaviour you want, since the API call is what costs money.
 
 ---
 
@@ -254,6 +284,30 @@ Authorization is enforced in three places, not one:
 3. **Every query** — reads and deletes filter on `userId` alongside the record id, so a
    guessed or forged diagram id returns nothing rather than someone else's data.
 
+Generation is additionally capped per user (see `lib/rate-limit.ts`), so a compromised
+or simply enthusiastic account can't drain the Groq key.
+
+---
+
+## Testing
+
+```bash
+pnpm test
+```
+
+Vitest covers the pure logic that's cheapest to break and most annoying to debug:
+
+- **`lib/mermaid.test.ts`** — every relationship type maps to the right UML arrow, and
+  class bodies render attributes and methods correctly.
+- **`lib/ai/schema.test.ts`** — the Zod contract rejects unknown relationship types,
+  missing titles and wrong attribute types.
+- **`lib/rate-limit.test.ts`** — the quota allows the last request under the limit,
+  blocks at the limit, enforces the daily cap independently, and scopes every count to
+  a single user. Prisma is mocked, so it runs without a database.
+
+CI (`.github/workflows/ci.yml`) runs lint, typecheck, tests and a production build on
+every push and pull request.
+
 ---
 
 ## Deploying
@@ -265,8 +319,8 @@ The app runs anywhere Next.js 16 does; Vercel is the smoothest path.
    project settings.
 3. Deploy. The `build` script runs `prisma generate` first, so the generated client
    doesn't need to be committed.
-4. Run `pnpm db:push` against your production branch, or promote a Neon branch that
-   already has the schema.
+4. Run `pnpm db:deploy` against your production branch to apply migrations, or promote
+   a Neon branch that already has the schema.
 
 Neon's serverless driver connects over WebSockets, so this works on serverless
 runtimes without connection-pool exhaustion.
@@ -292,6 +346,7 @@ tell you. If something looks unfamiliar, this is why:
 
 ## Roadmap
 
+- [ ] Error tracking (Sentry or similar) — needs a project DSN
 - [ ] Regenerate a diagram in place, keeping version history
 - [ ] Export to PNG / SVG
 - [ ] Sequence and use-case diagrams alongside class diagrams
