@@ -4,6 +4,9 @@ import { auth } from "@clerk/nextjs/server";
 import { model } from "@/lib/ai/models";
 import { umlSchema } from "@/lib/ai/schema";
 import { SYSTEM_PROMPT } from "@/lib/ai/prompt";
+import { checkGenerationLimit, recordGeneration } from "@/lib/rate-limit";
+
+const MAX_IDEA_LENGTH = 4000;
 
 export async function POST(req: Request) {
   try {
@@ -15,18 +18,39 @@ export async function POST(req: Request) {
 
     const { idea } = await req.json();
 
-    if (!idea) {
+    if (typeof idea !== "string" || !idea.trim()) {
       return Response.json(
         { error: "Project idea is required." },
         { status: 400 },
       );
     }
 
+    if (idea.length > MAX_IDEA_LENGTH) {
+      return Response.json(
+        { error: `Keep the idea under ${MAX_IDEA_LENGTH} characters.` },
+        { status: 400 },
+      );
+    }
+
+    const limit = await checkGenerationLimit(userId);
+
+    if (!limit.allowed) {
+      return Response.json(
+        { error: limit.message },
+        {
+          status: 429,
+          headers: { "Retry-After": String(limit.retryAfterSeconds) },
+        },
+      );
+    }
+
+    await recordGeneration(userId);
+
     const { object } = await generateObject({
       model,
       schema: umlSchema,
       system: SYSTEM_PROMPT,
-      prompt: idea,
+      prompt: idea.trim(),
     });
 
     return Response.json(object);

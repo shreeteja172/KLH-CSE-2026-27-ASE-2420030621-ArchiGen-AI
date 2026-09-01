@@ -18,3 +18,11 @@ model Diagram {
 
   @@index([userId, createdAt(sort: Desc)])
 }
+
+model GenerationEvent {
+  id        String   @id @default(cuid())
+  userId    String
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+}

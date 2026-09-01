@@ -9,6 +9,7 @@ import { SYSTEM_PROMPT } from "@/lib/ai/prompt";
 import { umlSchema } from "@/lib/ai/schema";
 import { prisma } from "@/lib/db";
 import { currentUserId } from "@/lib/diagrams";
+import { checkGenerationLimit, recordGeneration } from "@/lib/rate-limit";
 
 const MAX_IDEA_LENGTH = 4000;
 
@@ -38,9 +39,17 @@ export async function generateDiagram(
     };
   }
 
+  const limit = await checkGenerationLimit(userId);
+
+  if (!limit.allowed) {
+    return { error: limit.message };
+  }
+
   let id: string;
 
   try {
+    await recordGeneration(userId);
+
     const { object } = await generateObject({
       model,
       schema: umlSchema,
