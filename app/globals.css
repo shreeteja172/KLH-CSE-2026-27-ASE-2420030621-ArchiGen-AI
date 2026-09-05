@@ -7,39 +7,51 @@
   --color-canvas: #08080b;
   --color-surface: #101014;
   --color-surface-2: #17171d;
-  --color-hairline: #26262e;
+  --color-hairline: #24242c;
+  --color-hairline-bright: #33333d;
   --color-accent: #6366f1;
   --color-accent-soft: #a5b4fc;
 }
 
 html {
   color-scheme: dark;
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--color-canvas);
-  color: #ededf2;
+  color: #e8e8ee;
   font-family: var(--font-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
-@utility bg-blueprint {
-  background-image:
-    radial-gradient(
-      60rem 40rem at 50% -10%,
-      color-mix(in oklab, var(--color-accent) 18%, transparent),
-      transparent 70%
-    ),
-    linear-gradient(to right, var(--color-hairline) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--color-hairline) 1px, transparent 1px);
-  background-size:
-    100% 100%,
-    56px 56px,
-    56px 56px;
+::selection {
+  background: color-mix(in oklab, var(--color-accent) 35%, transparent);
+  color: #ffffff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 @utility card {
   border: 1px solid var(--color-hairline);
-  border-radius: 1rem;
+  border-radius: 0.75rem;
   background: var(--color-surface);
+}
+
+@utility glass {
+  border: 1px solid var(--color-hairline);
+  border-radius: 0.875rem;
+  background: color-mix(in oklab, var(--color-canvas) 80%, transparent);
+  backdrop-filter: blur(12px);
 }

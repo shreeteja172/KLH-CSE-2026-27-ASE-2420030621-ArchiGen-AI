@@ -25,7 +25,7 @@ const MOCK_CLASSES: MockClass[] = [
 function ClassCard({ cls }: { cls: MockClass }) {
   return (
     <div className="w-full overflow-hidden rounded-lg border border-hairline bg-surface-2">
-      <div className="border-b border-hairline bg-accent/10 px-3 py-2 text-center text-[13px] font-semibold text-accent-soft">
+      <div className="border-b border-hairline px-3 py-2 text-center text-[13px] font-medium text-zinc-200">
         {cls.name}
       </div>
 
@@ -50,7 +50,7 @@ function ClassCard({ cls }: { cls: MockClass }) {
 
 export default function DiagramPreview() {
   return (
-    <div className="card overflow-hidden shadow-2xl shadow-black/60">
+    <div className="card overflow-hidden">
       <div className="flex items-center gap-2 border-b border-hairline bg-surface-2 px-4 py-3">
         <span className="size-2.5 rounded-full bg-zinc-700" />
         <span className="size-2.5 rounded-full bg-zinc-700" />
