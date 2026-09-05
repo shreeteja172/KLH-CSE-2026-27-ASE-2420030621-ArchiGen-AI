@@ -1,42 +1,38 @@
-function Shimmer({ className = "" }: { className?: string }) {
-  return (
-    <div className={`animate-pulse rounded-lg bg-surface-2 ${className}`} />
-  );
+function Bar({ className = "" }: { className?: string }) {
+  return <div className={`animate-pulse rounded bg-surface-2 ${className}`} />;
 }
 
 export default function DashboardLoading() {
   return (
-    <div className="space-y-10">
+    <div className="space-y-16">
       <div>
-        <Shimmer className="h-9 w-72" />
-        <Shimmer className="mt-3 h-5 w-96 max-w-full" />
+        <Bar className="h-3 w-24" />
+        <Bar className="mt-5 h-9 w-72 max-w-full" />
+        <Bar className="mt-4 h-5 w-96 max-w-full" />
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-[1fr_260px] lg:items-start">
-        <div className="card p-5 sm:p-6">
-          <Shimmer className="h-5 w-44" />
-          <Shimmer className="mt-3 h-4 w-full max-w-md" />
-          <Shimmer className="mt-4 h-48 w-full" />
-          <div className="mt-4 flex justify-end">
-            <Shimmer className="h-10 w-36" />
-          </div>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-          <Shimmer className="h-[86px]" />
-          <Shimmer className="h-[86px]" />
+      <div>
+        <Bar className="h-3 w-40" />
+        <Bar className="mt-4 h-56 w-full" />
+        <div className="mt-5 flex justify-end">
+          <Bar className="h-10 w-40" />
         </div>
       </div>
 
-      <section>
-        <Shimmer className="mb-5 h-6 w-40" />
+      <div className="grid grid-cols-2 gap-x-8 gap-y-6 sm:grid-cols-3">
+        <Bar className="h-16" />
+        <Bar className="h-16" />
+        <Bar className="h-16" />
+      </div>
 
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          <Shimmer className="h-40" />
-          <Shimmer className="h-40" />
-          <Shimmer className="h-40" />
+      <div>
+        <Bar className="h-3 w-32" />
+        <div className="mt-6 space-y-px">
+          <Bar className="h-20" />
+          <Bar className="h-20" />
+          <Bar className="h-20" />
         </div>
-      </section>
+      </div>
     </div>
   );
 }

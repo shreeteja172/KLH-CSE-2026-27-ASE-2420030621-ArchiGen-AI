@@ -82,8 +82,8 @@ export default function FloatingNav() {
                 href={`#${link.id}`}
                 className={`rounded-lg px-3.5 py-2 text-sm transition-colors ${
                   active === link.id
-                    ? "text-white"
-                    : "text-zinc-500 hover:text-white"
+                    ? "bg-surface-2 text-white"
+                    : "text-zinc-400 hover:text-white"
                 }`}
               >
                 {link.label}
@@ -103,7 +103,7 @@ export default function FloatingNav() {
                   </SignInButton>
 
                   <SignUpButton mode="modal">
-                    <button className="rounded-lg bg-white px-4 py-2 text-sm font-medium text-canvas transition-colors hover:bg-zinc-200">
+                    <button className="rounded-lg bg-white px-4 py-2 text-sm font-medium text-canvas shadow-panel transition-colors hover:bg-zinc-200">
                       Get started
                     </button>
                   </SignUpButton>
@@ -112,7 +112,7 @@ export default function FloatingNav() {
             >
               <Link
                 href="/dashboard"
-                className="rounded-lg bg-white px-4 py-2 text-sm font-medium text-canvas transition-colors hover:bg-zinc-200"
+                className="rounded-lg bg-white px-4 py-2 text-sm font-medium text-canvas shadow-panel transition-colors hover:bg-zinc-200"
               >
                 Dashboard
               </Link>

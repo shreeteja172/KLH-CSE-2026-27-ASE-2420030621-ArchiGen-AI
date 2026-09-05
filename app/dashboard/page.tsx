@@ -3,7 +3,12 @@ import type { Metadata } from "next";
 import { currentUser } from "@clerk/nextjs/server";
 
 import GeneratorForm from "@/components/dashboard/GeneratorForm";
-import { listDiagrams, type DiagramSummary } from "@/lib/diagrams";
+import {
+  currentUserId,
+  listDiagrams,
+  type DiagramSummary,
+} from "@/lib/diagrams";
+import { generationQuota, type GenerationQuota } from "@/lib/rate-limit";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -17,12 +22,48 @@ function formatDate(date: Date) {
   }).format(date);
 }
 
-function Stat({ label, value }: { label: string; value: number | string }) {
+function StatCard({
+  label,
+  value,
+  hint,
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+}) {
   return (
-    <div className="card px-5 py-4">
-      <p className="text-2xl font-semibold tabular-nums">{value}</p>
-      <p className="mt-1 text-xs uppercase tracking-wider text-zinc-500">
-        {label}
+    <div className="card p-5">
+      <p className="label-mono">{label}</p>
+      <p className="mt-3 text-3xl font-medium tracking-tight tabular-nums">
+        {value}
+      </p>
+      {hint && <p className="mt-1.5 text-xs text-zinc-600">{hint}</p>}
+    </div>
+  );
+}
+
+function QuotaCard({ quota }: { quota: GenerationQuota }) {
+  const used = quota.hourlyLimit - quota.hourlyRemaining;
+  const percent = Math.round((used / quota.hourlyLimit) * 100);
+
+  return (
+    <div className="card p-5">
+      <div className="flex items-baseline justify-between">
+        <p className="label-mono">Hourly quota</p>
+        <p className="font-mono text-xs text-zinc-500 tabular-nums">
+          {quota.hourlyRemaining}/{quota.hourlyLimit}
+        </p>
+      </div>
+
+      <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-surface-3">
+        <div
+          className="h-full rounded-full bg-accent"
+          style={{ width: `${percent}%` }}
+        />
+      </div>
+
+      <p className="mt-3 text-xs text-zinc-600">
+        {quota.dailyRemaining} of {quota.dailyLimit} left today
       </p>
     </div>
   );
@@ -32,27 +73,40 @@ function DiagramCard({ diagram }: { diagram: DiagramSummary }) {
   return (
     <Link
       href={`/dashboard/diagrams/${diagram.id}`}
-      className="card block p-5 transition-colors hover:border-accent/40"
+      className="card raise group flex flex-col p-6"
     >
-      <div className="flex items-start justify-between gap-3">
-        <h3 className="line-clamp-2 font-semibold leading-snug">
+      <div className="flex items-start justify-between gap-4">
+        <h3 className="line-clamp-2 text-base font-medium leading-snug">
           {diagram.title}
         </h3>
-        <span className="shrink-0 text-xs text-zinc-600">
-          {formatDate(diagram.createdAt)}
-        </span>
+
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          className="mt-1 size-4 shrink-0 text-zinc-700 transition-all group-hover:translate-x-0.5 group-hover:text-accent-soft"
+          aria-hidden="true"
+        >
+          <path
+            d="M9 5l7 7-7 7"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
       </div>
 
-      <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-zinc-500">
+      <p className="mt-3 line-clamp-2 flex-1 text-sm leading-relaxed text-zinc-500">
         {diagram.idea}
       </p>
 
-      <div className="mt-4 flex gap-2 font-mono text-[11px] text-zinc-500">
-        <span className="rounded-md border border-hairline bg-surface-2 px-2 py-1">
-          {diagram.classCount} classes
+      <div className="mt-6 flex flex-wrap items-center gap-2">
+        <span className="pill font-mono">{diagram.classCount} classes</span>
+        <span className="pill font-mono">
+          {diagram.relationshipCount} relations
         </span>
-        <span className="rounded-md border border-hairline bg-surface-2 px-2 py-1">
-          {diagram.relationshipCount} relationships
+        <span className="ml-auto font-mono text-[11px] text-zinc-600">
+          {formatDate(diagram.createdAt)}
         </span>
       </div>
     </Link>
@@ -61,26 +115,26 @@ function DiagramCard({ diagram }: { diagram: DiagramSummary }) {
 
 function EmptyState() {
   return (
-    <div className="card flex flex-col items-center px-6 py-14 text-center">
-      <span className="grid size-12 place-items-center rounded-xl bg-accent/10 ring-1 ring-accent/25">
+    <div className="card flex flex-col items-center px-6 py-20 text-center">
+      <span className="grid size-14 place-items-center rounded-2xl border border-accent/25 bg-accent/10">
         <svg
           viewBox="0 0 24 24"
           fill="none"
-          className="size-6 text-accent-soft"
+          className="size-7 text-accent-soft"
           aria-hidden="true"
         >
           <path
             d="M4 5h6v4H4zM14 15h6v4h-6zM4 15h6v4H4zM10 7h2a2 2 0 012 2v8"
             stroke="currentColor"
-            strokeWidth="1.7"
+            strokeWidth="1.6"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
         </svg>
       </span>
 
-      <h3 className="mt-4 font-semibold">No diagrams yet</h3>
-      <p className="mt-2 max-w-sm text-sm text-zinc-500">
+      <h3 className="mt-6 text-base font-medium">No diagrams yet</h3>
+      <p className="mt-2 max-w-sm text-sm leading-relaxed text-zinc-500">
         Describe a project above and your generated class diagrams will collect
         here.
       </p>
@@ -89,50 +143,69 @@ function EmptyState() {
 }
 
 export default async function DashboardPage() {
-  const [user, diagrams] = await Promise.all([currentUser(), listDiagrams()]);
+  const userId = await currentUserId();
+
+  const [user, diagrams, quota] = await Promise.all([
+    currentUser(),
+    listDiagrams(),
+    userId ? generationQuota(userId) : null,
+  ]);
 
   const firstName = user?.firstName ?? null;
   const totalClasses = diagrams.reduce((sum, d) => sum + d.classCount, 0);
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-14">
       <div>
-        <h1 className="text-3xl font-semibold tracking-tight">
+        <p className="label-mono">Workspace</p>
+        <h1 className="mt-4 text-4xl font-medium tracking-tight">
           {firstName ? `Welcome back, ${firstName}` : "Welcome back"}
         </h1>
-        <p className="mt-2 text-zinc-400">
+        <p className="mt-3 max-w-xl leading-relaxed text-zinc-400">
           Describe a system and ArchiGen will design the class model for it.
         </p>
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-[1fr_260px] lg:items-start">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
         <GeneratorForm />
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-          <Stat label="Diagrams saved" value={diagrams.length} />
-          <Stat label="Classes modelled" value={totalClasses} />
+        <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1 lg:sticky lg:top-24">
+          <StatCard
+            label="Diagrams"
+            value={String(diagrams.length)}
+            hint="saved to your workspace"
+          />
+          <StatCard
+            label="Classes"
+            value={String(totalClasses)}
+            hint="modelled across all diagrams"
+          />
+          {quota && <QuotaCard quota={quota} />}
         </div>
       </div>
 
       <section>
-        <div className="mb-5 flex items-baseline justify-between">
-          <h2 className="text-lg font-semibold">Your diagrams</h2>
+        <div className="flex items-baseline justify-between border-b border-hairline pb-5">
+          <h2 className="text-lg font-medium tracking-tight">Your diagrams</h2>
+
           {diagrams.length > 0 && (
-            <span className="text-sm text-zinc-600">
+            <span className="font-mono text-xs text-zinc-600">
               {diagrams.length} saved
             </span>
           )}
         </div>
 
-        {diagrams.length === 0 ? (
-          <EmptyState />
-        ) : (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {diagrams.map((diagram) => (
-              <DiagramCard key={diagram.id} diagram={diagram} />
-            ))}
-          </div>
-        )}
+        <div className="mt-8">
+          {diagrams.length === 0 ? (
+            <EmptyState />
+          ) : (
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {diagrams.map((diagram) => (
+                <DiagramCard key={diagram.id} diagram={diagram} />
+              ))}
+            </div>
+          )}
+        </div>
       </section>
     </div>
   );

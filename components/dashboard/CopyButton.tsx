@@ -29,7 +29,7 @@ export default function CopyButton({ value, label = "Copy" }: Props) {
           setCopied(false);
         }
       }}
-      className="rounded-md border border-hairline bg-surface-2 px-2.5 py-1 text-[11px] font-medium text-zinc-400 transition-colors hover:text-white"
+      className="rounded-lg border border-hairline bg-surface px-3 py-1.5 font-mono text-[11px] text-zinc-400 transition-colors hover:border-hairline-bright hover:text-white"
     >
       {copied ? "Copied" : label}
     </button>

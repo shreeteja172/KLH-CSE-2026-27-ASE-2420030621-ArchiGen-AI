@@ -80,6 +80,35 @@ export async function checkGenerationLimit(
   return { allowed: true };
 }
 
+export type GenerationQuota = {
+  hourlyRemaining: number;
+  hourlyLimit: number;
+  dailyRemaining: number;
+  dailyLimit: number;
+};
+
+export async function generationQuota(
+  userId: string,
+): Promise<GenerationQuota> {
+  const now = Date.now();
+
+  const [hourlyCount, dailyCount] = await Promise.all([
+    prisma.generationEvent.count({
+      where: { userId, createdAt: { gte: new Date(now - HOUR_MS) } },
+    }),
+    prisma.generationEvent.count({
+      where: { userId, createdAt: { gte: new Date(now - DAY_MS) } },
+    }),
+  ]);
+
+  return {
+    hourlyRemaining: Math.max(0, HOURLY_LIMIT - hourlyCount),
+    hourlyLimit: HOURLY_LIMIT,
+    dailyRemaining: Math.max(0, DAILY_LIMIT - dailyCount),
+    dailyLimit: DAILY_LIMIT,
+  };
+}
+
 export async function recordGeneration(userId: string) {
   await prisma.generationEvent.create({ data: { userId } });
 }
