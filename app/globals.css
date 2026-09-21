@@ -116,6 +116,45 @@ body {
   outline: none;
 }
 
+.diagram-header-button {
+  border: 1px solid #3f3f52;
+  border-radius: 0.35rem;
+  background: #17171d;
+  padding: 0.4rem 0.65rem;
+  color: #b8b8c8;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.68rem;
+  cursor: pointer;
+}
+
+.diagram-header-button:hover,
+.diagram-header-button:focus-visible {
+  border-color: #63637b;
+  background: #232330;
+  color: #ffffff;
+  outline: none;
+}
+
+.diagram-panel-header {
+  position: relative;
+}
+
+.diagram-panel-actions {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+@media (max-width: 640px) {
+  .diagram-panel-actions {
+    position: static;
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    transform: none;
+  }
+}
+
 .uml-board__controls span {
   min-width: 3.2rem;
   text-align: center;

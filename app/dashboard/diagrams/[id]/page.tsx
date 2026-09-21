@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 
 import CopyButton from "@/components/dashboard/CopyButton";
 import DeleteDiagramButton from "@/components/dashboard/DeleteDiagramButton";
-import MermaidDiagram from "@/components/MermaidDiagram"; // Ensure this import is correct
+import DiagramPanel from "@/components/dashboard/DiagramPanel";
 import { getDiagram } from "@/lib/diagrams";
 import { toMermaid } from "@/lib/mermaid";
 
@@ -79,16 +79,7 @@ export default async function DiagramPage(
       </div>
 
       <section>
-        <div className="panel overflow-hidden">
-          <div className="flex items-center justify-between border-b border-hairline bg-surface-2 px-6 py-4">
-            <h2 className="label-mono">Class diagram</h2>
-            <CopyButton value={chart} label="Copy Mermaid" />
-          </div>
-
-          <div className="p-8">
-            <MermaidDiagram diagram={diagram.uml} />
-          </div>
-        </div>
+        <DiagramPanel chart={chart} diagram={diagram.uml} />
       </section>
 
       <section>
