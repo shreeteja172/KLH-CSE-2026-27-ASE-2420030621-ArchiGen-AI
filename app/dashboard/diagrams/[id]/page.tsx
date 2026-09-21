@@ -29,8 +29,8 @@ export default async function DiagramPage(
   const json = JSON.stringify(diagram.uml, null, 2);
 
   return (
-    <div className="space-y-12">
-      <div>
+    <div className="document-workspace">
+      <div className="document-heading">
         <Link
           href="/dashboard"
           className="inline-flex items-center gap-2 label-mono transition-colors hover:text-white"
@@ -52,9 +52,16 @@ export default async function DiagramPage(
           Workspace
         </Link>
 
-        <div className="mt-6 flex flex-wrap items-start justify-between gap-6">
+        <div className="mt-7 flex flex-wrap items-end justify-between gap-6">
           <div className="min-w-0">
-            <h1 className="text-3xl font-medium tracking-tight">
+            <div className="flex items-center gap-3">
+              <p className="document-eyebrow">Document workspace</p>
+              <span className="document-live-status">
+                <span />
+                Saved
+              </span>
+            </div>
+            <h1 className="mt-2 text-4xl font-medium tracking-tight">
               {diagram.title}
             </h1>
 
@@ -78,31 +85,116 @@ export default async function DiagramPage(
         </div>
       </div>
 
-      <section>
-        <DiagramPanel chart={chart} diagram={diagram.uml} />
-      </section>
+      <nav className="document-nav" aria-label="Document sections">
+        <a className="is-active" href="#diagram">
+          Canvas
+        </a>
+        <a href="#brief">Brief</a>
+        <a href="#model">Model</a>
+        <span className="document-nav__hint">
+          {diagram.classCount} nodes · {diagram.relationshipCount} links
+        </span>
+      </nav>
 
-      <section>
-        <div className="card p-7">
-          <h2 className="label-mono">Your idea</h2>
+      <div className="document-layout">
+        <main className="document-main" id="diagram">
+          <section className="workspace-canvas-section">
+            <div className="workspace-canvas-heading">
+              <div>
+                <p className="document-eyebrow">Interactive canvas</p>
+                <h2>System architecture</h2>
+              </div>
+              <span className="workspace-canvas-meta">
+                UML · {diagram.classCount} classes
+              </span>
+            </div>
+            <DiagramPanel chart={chart} diagram={diagram.uml} />
+          </section>
 
-          <p className="mt-4 whitespace-pre-wrap text-sm leading-relaxed text-zinc-300">
-            {diagram.idea}
-          </p>
-        </div>
-      </section>
+          <section className="workspace-note" id="brief">
+            <div className="workspace-note__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M6 4.5h12M6 9h8M6 13.5h12M6 18h7"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </div>
+            <div>
+              <div className="flex items-center gap-3">
+                <h2>Your idea</h2>
+                <span className="document-section-mark">Brief</span>
+              </div>
+              <p>{diagram.idea}</p>
+            </div>
+          </section>
+        </main>
 
-      <section>
-        <div className="panel overflow-hidden">
-          <div className="flex items-center justify-between border-b border-hairline bg-surface-2 px-6 py-4">
-            <h2 className="label-mono">Model · JSON</h2>
-            <CopyButton value={json} label="Copy JSON" />
+        <aside className="document-sidebar">
+          <section className="workspace-sidebar-card">
+            <p className="document-eyebrow">Document index</p>
+            <div className="workspace-index-list">
+              <a className="is-active" href="#diagram">
+                <span>01</span>
+                <strong>System architecture</strong>
+              </a>
+              <a href="#brief">
+                <span>02</span>
+                <strong>Project brief</strong>
+              </a>
+              <a href="#model">
+                <span>03</span>
+                <strong>Structured model</strong>
+              </a>
+            </div>
+          </section>
+
+          <section className="workspace-sidebar-card workspace-stats">
+            <p className="document-eyebrow">At a glance</p>
+            <div className="workspace-stat-grid">
+              <div>
+                <strong>{diagram.classCount}</strong>
+                <span>Classes</span>
+              </div>
+              <div>
+                <strong>{diagram.relationshipCount}</strong>
+                <span>Relations</span>
+              </div>
+            </div>
+            <div className="workspace-sidebar-divider" />
+            <p className="workspace-sidebar-label">Last generated</p>
+            <p className="workspace-sidebar-value">
+              {new Intl.DateTimeFormat("en-GB", {
+                dateStyle: "medium",
+                timeStyle: "short",
+              }).format(diagram.createdAt)}
+            </p>
+          </section>
+
+          <section className="workspace-sidebar-card workspace-tip">
+            <span className="workspace-tip__mark">i</span>
+            <div>
+              <p className="workspace-sidebar-label">Working note</p>
+              <p>
+                Use the canvas controls to inspect the architecture. Your source
+                model stays available below.
+              </p>
+            </div>
+          </section>
+        </aside>
+      </div>
+
+      <section className="workspace-model" id="model">
+        <div className="workspace-model__header">
+          <div>
+            <p className="document-eyebrow">Structured output</p>
+            <h2>Model source</h2>
           </div>
-
-          <pre className="max-h-[28rem] overflow-auto p-6 font-mono text-[12.5px] leading-relaxed text-zinc-400">
-            {json}
-          </pre>
+          <CopyButton value={json} label="Copy JSON" />
         </div>
+        <pre>{json}</pre>
       </section>
     </div>
   );
