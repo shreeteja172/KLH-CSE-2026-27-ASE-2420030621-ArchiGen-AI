@@ -30,6 +30,127 @@ body {
   letter-spacing: -0.011em;
 }
 
+.floating-nav-wrap {
+  position: fixed;
+  z-index: 50;
+  top: 1rem;
+  right: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.floating-nav {
+  display: flex;
+  width: min(calc(100% - 2rem), 64rem);
+  min-height: 3.5rem;
+  align-items: center;
+  border: 1px solid rgba(63, 63, 82, 0.82);
+  border-radius: 0.85rem;
+  background: color-mix(in oklab, #111117 88%, transparent);
+  padding: 0.45rem 0.55rem 0.45rem 0.75rem;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28), inset 0 1px rgba(255, 255, 255, 0.035);
+  backdrop-filter: blur(18px) saturate(130%);
+  pointer-events: auto;
+}
+
+.floating-nav__brand {
+  color: #ededf2;
+  transition: opacity 0.2s ease;
+}
+
+.floating-nav__brand:hover {
+  opacity: 0.76;
+}
+
+.floating-nav__context,
+.floating-nav__auth-link {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-left: 0.85rem;
+  color: #858594;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  transition: color 0.2s ease;
+}
+
+.floating-nav__context:hover {
+  color: #f0f0f5;
+}
+
+.floating-nav__divider {
+  width: 1px;
+  height: 1.15rem;
+  background: #3a3a49;
+}
+
+.floating-nav__account {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  padding-left: 0.75rem;
+}
+
+.floating-nav__auth-link {
+  margin-left: auto;
+  gap: 0.55rem;
+}
+
+.floating-nav__auth-link a {
+  color: #c4c5d3;
+}
+
+.floating-nav__auth-link a:hover {
+  color: #ffffff;
+}
+
+.floating-nav__auth-link span {
+  color: #686879;
+}
+
+.auth-page {
+  min-height: 100vh;
+  padding: 7rem 1.5rem 3rem;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(99, 102, 241, 0.1), transparent 30rem),
+    var(--color-canvas);
+}
+
+.auth-page__form {
+  display: flex;
+  justify-content: center;
+}
+
+@media (max-width: 560px) {
+  .floating-nav-wrap {
+    top: 0.65rem;
+  }
+
+  .floating-nav {
+    width: calc(100% - 1.25rem);
+    min-height: 3.15rem;
+    padding-left: 0.55rem;
+  }
+
+  .floating-nav__brand span:last-child {
+    display: none;
+  }
+
+  .floating-nav__context {
+    margin-left: 0.6rem;
+  }
+
+  .floating-nav__auth-link {
+    font-size: 0.625rem;
+  }
+
+  .auth-page {
+    padding: 5.75rem 0.75rem 2rem;
+  }
+}
+
 .document-heading {
   border-bottom: 1px solid var(--color-hairline);
   padding-bottom: 2.25rem;
