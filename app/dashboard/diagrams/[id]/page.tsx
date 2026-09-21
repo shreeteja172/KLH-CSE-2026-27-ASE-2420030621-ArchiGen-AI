@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 
 import CopyButton from "@/components/dashboard/CopyButton";
 import DeleteDiagramButton from "@/components/dashboard/DeleteDiagramButton";
-import MermaidDiagram from "@/components/MermaidDiagram";
+import MermaidDiagram from "@/components/MermaidDiagram"; // Ensure this import is correct
 import { getDiagram } from "@/lib/diagrams";
 import { toMermaid } from "@/lib/mermaid";
 
@@ -86,7 +86,7 @@ export default async function DiagramPage(
           </div>
 
           <div className="p-8">
-            <MermaidDiagram chart={chart} />
+            <MermaidDiagram diagram={diagram.uml} />
           </div>
         </div>
       </section>

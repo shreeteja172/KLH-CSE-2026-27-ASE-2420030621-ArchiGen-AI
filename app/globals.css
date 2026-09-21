@@ -30,6 +30,110 @@ body {
   letter-spacing: -0.011em;
 }
 
+.mermaid-diagram {
+  width: 100%;
+  overflow: visible;
+}
+
+.mermaid-diagram svg {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+  overflow: visible;
+}
+
+.uml-board {
+  width: 100%;
+  overflow: visible;
+  background: #101014;
+  padding: 2rem;
+}
+
+.uml-board__classes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4rem 3rem;
+  align-items: start;
+}
+
+.uml-board__relationships {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 3rem;
+  border-top: 1px solid #2b2b38;
+  padding-top: 1.5rem;
+}
+
+.uml-relationship {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  border: 1px solid #2b2b38;
+  border-radius: 0.35rem;
+  background: #17171d;
+  padding: 0.45rem 0.65rem;
+  color: #b8b8c8;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.72rem;
+}
+
+.uml-relationship strong {
+  color: #a5b4fc;
+  font-weight: 500;
+}
+
+.uml-class {
+  overflow: hidden;
+  border: 1px solid #3f3f52;
+  border-radius: 0.35rem;
+  background: #17171d;
+  color: #ededf2;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+  font-family: var(--font-mono), monospace;
+  font-size: clamp(0.6rem, 1.2vw, 0.78rem);
+  line-height: 1.55;
+}
+
+.uml-class h3 {
+  border-bottom: 1px solid #3f3f52;
+  padding: 0.65rem 0.8rem;
+  text-align: center;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: clamp(0.7rem, 1.35vw, 0.9rem);
+  font-weight: 600;
+}
+
+.uml-class__section {
+  min-height: 2.3rem;
+  border-bottom: 1px solid #2b2b38;
+  padding: 0.55rem 0.8rem;
+}
+
+.uml-class__section:last-child {
+  border-bottom: 0;
+}
+
+@media (max-width: 900px) {
+  .uml-board__classes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2.5rem 1.5rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .uml-board {
+    padding: 1rem;
+  }
+
+  .uml-board__classes {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
 ::selection {
   background: color-mix(in oklab, var(--color-accent) 35%, transparent);
   color: #ffffff;

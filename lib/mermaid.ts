@@ -1,7 +1,7 @@
 import type { UML } from "@/lib/ai/schema";
 
 export function toMermaid(data: UML) {
-  let output = "classDiagram\n\n";
+  let output = "classDiagram\n  direction TB\n\n";
 
   // Relationships
   data.relationships.forEach((rel) => {
