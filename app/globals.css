@@ -45,44 +45,115 @@ body {
 }
 
 .uml-board {
+  position: relative;
   width: 100%;
-  overflow: visible;
+  max-height: min(70vh, 48rem);
+  min-height: 32rem;
+  overflow: auto;
+  cursor: grab;
   background: #101014;
   padding: 2rem;
+  scrollbar-color: #48485b #101014;
+  scrollbar-width: thin;
+}
+
+.uml-board.is-dragging {
+  cursor: grabbing;
+  user-select: none;
+}
+
+.uml-board__reset {
+  position: absolute;
+  z-index: 3;
+  top: 0.75rem;
+  left: 0.75rem;
+  display: block;
+  margin: 0;
+  border: 1px solid #3f3f52;
+  border-radius: 0.35rem;
+  background: #17171d;
+  padding: 0.4rem 0.65rem;
+  color: #b8b8c8;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.68rem;
+  cursor: pointer;
+}
+
+.uml-board__controls {
+  position: absolute;
+  z-index: 3;
+  top: 0.75rem;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  width: max-content;
+  margin: 0;
+  transform: translateX(-50%);
+  border: 1px solid #3f3f52;
+  border-radius: 0.35rem;
+  background: #17171d;
+  padding: 0.2rem;
+  color: #b8b8c8;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.68rem;
+}
+
+.uml-board__controls button {
+  min-width: 1.7rem;
+  border: 0;
+  border-radius: 0.2rem;
+  background: transparent;
+  padding: 0.25rem 0.4rem;
+  color: inherit;
+  cursor: pointer;
+}
+
+.uml-board__controls button:hover,
+.uml-board__controls button:focus-visible {
+  background: #2b2b38;
+  color: #ffffff;
+  outline: none;
+}
+
+.uml-board__controls span {
+  min-width: 3.2rem;
+  text-align: center;
+}
+
+.uml-board__surface {
+  position: relative;
+  width: max-content;
+  min-width: 100%;
+  transition: zoom 0.18s ease;
+}
+
+.uml-board__lines {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  color: #8585a0;
+  pointer-events: none;
+}
+
+.uml-board__line {
+  stroke: currentColor;
+  stroke-width: 1.4;
+  opacity: 0.85;
 }
 
 .uml-board__classes {
+  position: relative;
+  z-index: 1;
   display: grid;
+  min-width: 52rem;
+  min-height: 38rem;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 4rem 3rem;
   align-items: start;
-}
-
-.uml-board__relationships {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  margin-top: 3rem;
-  border-top: 1px solid #2b2b38;
-  padding-top: 1.5rem;
-}
-
-.uml-relationship {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  border: 1px solid #2b2b38;
-  border-radius: 0.35rem;
-  background: #17171d;
-  padding: 0.45rem 0.65rem;
-  color: #b8b8c8;
-  font-family: var(--font-mono), monospace;
-  font-size: 0.72rem;
-}
-
-.uml-relationship strong {
-  color: #a5b4fc;
-  font-weight: 500;
 }
 
 .uml-class {
@@ -129,6 +200,7 @@ body {
   }
 
   .uml-board__classes {
+    min-width: 38rem;
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
