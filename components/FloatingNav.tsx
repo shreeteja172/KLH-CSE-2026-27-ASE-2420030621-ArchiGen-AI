@@ -21,10 +21,18 @@ export default function FloatingNav({ children, mode = "workspace" }: Props) {
         </Link>
 
         {mode === "workspace" ? (
-          <Link href="/dashboard" className="floating-nav__context">
-            <span className="floating-nav__divider" aria-hidden="true" />
-            <span>Workspace</span>
-          </Link>
+          <>
+            <Link href="/dashboard" className="floating-nav__context">
+              <span className="floating-nav__divider" aria-hidden="true" />
+              <span>Workspace</span>
+            </Link>
+            <Link
+              href="/dashboard/diagrams"
+              className="floating-nav__library-link"
+            >
+              All diagrams
+            </Link>
+          </>
         ) : (
           <div className="floating-nav__auth-link">{children}</div>
         )}

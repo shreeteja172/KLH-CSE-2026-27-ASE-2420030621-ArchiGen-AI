@@ -80,6 +80,20 @@ body {
   color: #f0f0f5;
 }
 
+.floating-nav__library-link {
+  margin-left: 1.1rem;
+  border-left: 1px solid #30303d;
+  padding-left: 1.1rem;
+  color: #858594;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  transition: color 0.2s ease;
+}
+
+.floating-nav__library-link:hover {
+  color: #f0f0f5;
+}
+
 .floating-nav__divider {
   width: 1px;
   height: 1.15rem;
@@ -148,6 +162,178 @@ body {
 
   .auth-page {
     padding: 5.75rem 0.75rem 2rem;
+  }
+
+  .floating-nav__library-link {
+    display: none;
+  }
+}
+
+.diagram-library__heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 2rem;
+  border-bottom: 1px solid var(--color-hairline);
+  padding-bottom: 2.25rem;
+}
+
+.diagram-library__heading h1 {
+  margin-top: 0.55rem;
+  color: #ececf2;
+  font-size: 2.25rem;
+  font-weight: 500;
+  letter-spacing: -0.035em;
+}
+
+.diagram-library__intro {
+  margin-top: 0.75rem;
+  color: #7f7f90;
+  font-size: 0.9rem;
+}
+
+.diagram-library__new {
+  border: 1px solid #45455b;
+  border-radius: 0.4rem;
+  background: #191923;
+  padding: 0.6rem 0.8rem;
+  color: #c6c7d3;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.68rem;
+}
+
+.diagram-library__new:hover {
+  border-color: #70709a;
+  color: #fff;
+}
+
+.diagram-library__toolbar {
+  display: flex;
+  justify-content: space-between;
+  margin: 1.5rem 0;
+  color: #9a9aaa;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.diagram-library__count {
+  color: #5e5e70;
+}
+
+.diagram-library__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.diagram-library-card {
+  display: flex;
+  min-height: 13rem;
+  flex-direction: column;
+  border: 1px solid var(--color-hairline);
+  border-radius: 0.7rem;
+  background: #101015;
+  padding: 1.15rem;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.diagram-library-card:hover {
+  transform: translateY(-2px);
+  border-color: #4b4b61;
+  background: #15151c;
+}
+
+.diagram-library-card__topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #666678;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.diagram-library-card__topline svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.diagram-library-card h2 {
+  margin-top: 2rem;
+  color: #e4e4eb;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.diagram-library-card p {
+  display: -webkit-box;
+  flex: 1;
+  margin-top: 0.6rem;
+  overflow: hidden;
+  color: #858593;
+  font-size: 0.78rem;
+  line-height: 1.6;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.diagram-library-card__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.3rem;
+  border-top: 1px solid #252531;
+  padding-top: 0.8rem;
+  color: #606071;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.6rem;
+}
+
+.diagram-library__empty {
+  border: 1px dashed #343445;
+  border-radius: 0.75rem;
+  padding: 5rem 2rem;
+  text-align: center;
+}
+
+.diagram-library__empty h2 {
+  margin-top: 0.8rem;
+  color: #e4e4eb;
+  font-size: 1.1rem;
+}
+
+.diagram-library__empty p:not(.document-eyebrow) {
+  margin-top: 0.5rem;
+  color: #747485;
+  font-size: 0.8rem;
+}
+
+.diagram-library__empty a {
+  display: inline-block;
+  margin-top: 1.2rem;
+  color: var(--color-accent-soft);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.7rem;
+}
+
+@media (max-width: 900px) {
+  .diagram-library__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .diagram-library__heading {
+    align-items: start;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .diagram-library__grid {
+    grid-template-columns: 1fr;
   }
 }
 
